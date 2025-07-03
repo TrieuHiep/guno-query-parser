@@ -9,8 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 import vn.guno.core.BaseCondition;
 
-import static org.junit.Assert.*;
-
 public class QueryGenerationImplTest {
 
     Gson gson;
@@ -120,14 +118,21 @@ public class QueryGenerationImplTest {
                           "alias": "c"
                         },
                         "onCondition": {
-                          "column": {
-                            "table": {
-                              "alias": "o"
+                            "leftColumn": {
+                                "table": {
+                                  "name": "orders",
+                                  "alias": "o"
+                                },
+                                "name": "customer_id"
                             },
-                            "name": "customer_id"
-                          },
-                          "operator": "EQUALS",
-                          "value": "c.id"
+                            "rightColumn": {
+                                "table": {
+                                  "name": "customers",
+                                  "alias": "c"
+                                },
+                                "name": "id"
+                            },
+                            "operator": "EQUALS"
                         }
                       }
                     ],
@@ -418,14 +423,20 @@ public class QueryGenerationImplTest {
                         }
                       },
                       "onCondition": {
-                        "column": {
+                        "leftColumn": {
                           "table": {
+                            "name": "orders",
                             "alias": "o"
                           },
                           "name": "customer_id"
                         },
-                        "operator": "EQUALS",
-                        "value": "sub_cust.id"
+                        "rightColumn": {
+                          "table": {
+                            "alias": "sub_cust"
+                          },
+                          "name": "id"
+                        },
+                        "operator": "EQUALS"
                       }
                     }
                   ],
@@ -441,8 +452,7 @@ public class QueryGenerationImplTest {
                       }
                     }
                   ]
-                }
-                                 
+                }             
                 """;
     }
 
@@ -450,155 +460,160 @@ public class QueryGenerationImplTest {
     public void nestedJoinWithSubQuery() {
         rawSQL = """
                 {
-                                   "fromGTable": {
-                                     "name": "orders",
-                                     "alias": "o"
-                                   },
-                                   "joins": [
-                                     {
-                                       "joinType": "INNER",
-                                       "toSubquery": {
-                                         "alias": "vip_customers",
-                                         "query": {
-                                           "fromGTable": {
-                                             "name": "customers",
-                                             "alias": "c"
-                                           },
-                                           "metrics": [
-                                             {
-                                               "type": "COUNT",
-                                               "alias": "order_count",
-                                               "column": {
-                                                 "table": {
-                                                   "alias": "c"
-                                                 },
-                                                 "name": "id"
-                                               }
-                                             }
-                                           ],
-                                           "dimensions": [
-                                             {
-                                               "column": {
-                                                 "table": {
-                                                   "alias": "c"
-                                                 },
-                                                 "name": "id"
-                                               }
-                                             }
-                                           ],
-                                           "groupBy": [
-                                             {
-                                               "column": {
-                                                 "table": {
-                                                   "alias": "c"
-                                                 },
-                                                 "name": "id"
-                                               }
-                                             }
-                                           ]
-                                         }
-                                       },
-                                       "onCondition": {
-                                         "column": {
-                                           "table": {
-                                             "alias": "o"
-                                           },
-                                           "name": "customer_id"
-                                         },
-                                         "operator": "EQUALS",
-                                         "value": "vip_customers.id"
-                                       }
-                                     }
-                                   ],
-                                   "dimensions": [
-                                     {
-                                       "column": {
-                                         "table": {
-                                           "alias": "o"
-                                         },
-                                         "name": "region"
-                                       }
-                                     }
-                                   ],
-                                   "metrics": [
-                                     {
-                                       "type": "COUNT",
-                                       "alias": "total_orders",
-                                       "column": {
-                                         "table": {
-                                           "alias": "o"
-                                         },
-                                         "name": "id"
-                                       }
-                                     }
-                                   ],
-                                   "whereCondition": {
-                                     "operator": "AND",
-                                     "conditions": [
-                                       {
-                                         "column": {
-                                           "table": {
-                                             "alias": "o"
-                                           },
-                                           "name": "status"
-                                         },
-                                         "operator": "EQUALS",
-                                         "value": "completed"
-                                       },
-                                       {
-                                         "operator": "OR",
-                                         "conditions": [
-                                           {
-                                             "column": {
-                                               "table": {
-                                                 "alias": "o"
-                                               },
-                                               "name": "country"
-                                             },
-                                             "operator": "EQUALS",
-                                             "value": "US"
-                                           },
-                                           {
-                                             "column": {
-                                               "table": {
-                                                 "alias": "o"
-                                               },
-                                               "name": "country"
-                                             },
-                                             "operator": "EQUALS",
-                                             "value": "UK"
-                                           }
-                                         ]
-                                       },
-                                       {
-                                         "operator": "NOT",
-                                         "conditions": [
-                                           {
-                                             "column": {
-                                               "table": {
-                                                 "alias": "o"
-                                               },
-                                               "name": "payment_method"
-                                             },
-                                             "operator": "EQUALS",
-                                             "value": "cash"
-                                           }
-                                         ]
-                                       }
-                                     ]
-                                   },
-                                   "orderBy": [
-                                     {
-                                       "column": {
-                                         "table": {
-                                           "alias": "o"
-                                         },
-                                         "name": "region"
-                                       },
-                                       "direction": "ASC"
-                                     }
-                                   ]
-                                 }
+                  "fromGTable": {
+                    "name": "orders",
+                    "alias": "o"
+                  },
+                  "joins": [
+                    {
+                      "joinType": "INNER",
+                      "toSubquery": {
+                        "alias": "vip_customers",
+                        "query": {
+                          "fromGTable": {
+                            "name": "customers",
+                            "alias": "c"
+                          },
+                          "metrics": [
+                            {
+                              "type": "COUNT",
+                              "alias": "order_count",
+                              "column": {
+                                "table": {
+                                  "alias": "c"
+                                },
+                                "name": "id"
+                              }
+                            }
+                          ],
+                          "dimensions": [
+                            {
+                              "column": {
+                                "table": {
+                                  "alias": "c"
+                                },
+                                "name": "id"
+                              }
+                            }
+                          ],
+                          "groupBy": [
+                            {
+                              "column": {
+                                "table": {
+                                  "alias": "c"
+                                },
+                                "name": "id"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "onCondition": {
+                        "leftColumn": {
+                          "table": {
+                            "alias": "o"
+                          },
+                          "name": "customer_id"
+                        },
+                        "rightColumn": {
+                          "table": {
+                            "alias": "vip_customers"
+                          },
+                          "name": "id"
+                        },
+                        "operator": "EQUALS"
+                      }
+                    }
+                  ],
+                  "dimensions": [
+                    {
+                      "column": {
+                        "table": {
+                          "alias": "o"
+                        },
+                        "name": "region"
+                      }
+                    }
+                  ],
+                  "metrics": [
+                    {
+                      "type": "COUNT",
+                      "alias": "total_orders",
+                      "column": {
+                        "table": {
+                          "alias": "o"
+                        },
+                        "name": "id"
+                      }
+                    }
+                  ],
+                  "whereCondition": {
+                    "operator": "AND",
+                    "conditions": [
+                      {
+                        "column": {
+                          "table": {
+                            "alias": "o"
+                          },
+                          "name": "status"
+                        },
+                        "operator": "EQUALS",
+                        "value": "completed"
+                      },
+                      {
+                        "operator": "OR",
+                        "conditions": [
+                          {
+                            "column": {
+                              "table": {
+                                "alias": "o"
+                              },
+                              "name": "country"
+                            },
+                            "operator": "EQUALS",
+                            "value": "US"
+                          },
+                          {
+                            "column": {
+                              "table": {
+                                "alias": "o"
+                              },
+                              "name": "country"
+                            },
+                            "operator": "EQUALS",
+                            "value": "UK"
+                          }
+                        ]
+                      },
+                      {
+                        "operator": "NOT",
+                        "conditions": [
+                          {
+                            "column": {
+                              "table": {
+                                "alias": "o"
+                              },
+                              "name": "payment_method"
+                            },
+                            "operator": "EQUALS",
+                            "value": "cash"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "orderBy": [
+                    {
+                      "column": {
+                        "table": {
+                          "alias": "o"
+                        },
+                        "name": "region"
+                      },
+                      "direction": "ASC"
+                    }
+                  ]
+                }
                 """;
     }
 

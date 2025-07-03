@@ -2,8 +2,8 @@ package vn.guno;
 
 import org.jooq.*;
 import org.jooq.impl.DSL;
-import vn.guno.core.*;
 import vn.guno.core.Condition;
+import vn.guno.core.*;
 import vn.guno.global.SortDirection;
 
 import java.util.ArrayList;
@@ -11,10 +11,6 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.jooq.impl.DSL.*;
-import static vn.guno.global.AggregationType.*;
-import static vn.guno.global.JoinType.*;
-import static vn.guno.global.LogicalOperator.*;
-import static vn.guno.global.Operator.*;
 
 public class QueryGenerationImpl {
 
@@ -68,14 +64,35 @@ public class QueryGenerationImpl {
     private void applyNestedJoins(SelectJoinStep<?> query, Join parentJoin) {
         for (Join nested : parentJoin.getNestedJoins()) {
             Table<?> to = table(name(nested.getToTable().getName())).as(nested.getToTable().getAlias());
-            Field<Object> left = field(name(nested.getOnCondition().getColumn().getTable().getAlias(), nested.getOnCondition().getColumn().getName()));
-            Field<Object> right = field((String) nested.getOnCondition().getValue());
+//            Field<Object> left = field(name(nested.getOnCondition().getColumn().getTable().getAlias(), nested.getOnCondition().getColumn().getName()));
+//            Field<Object> right = field((String) nested.getOnCondition().getValue());
+
+            JoinCondition joinCond = nested.getOnCondition();
+            Field<Object> left = field(name(
+                    joinCond.getLeftColumn().getTable().getAlias(),
+                    joinCond.getLeftColumn().getName()
+            ));
+            Field<Object> right = field(name(
+                    joinCond.getRightColumn().getTable().getAlias(),
+                    joinCond.getRightColumn().getName()
+            ));
+
+            org.jooq.Condition joinComparisonCond = left.eq(right); // default: join on EQUALS
+
+            switch (joinCond.getOperator()) { // ON A.id = > < B.id
+                case EQUALS -> joinComparisonCond = left.eq(right);
+                case GREATER_THAN -> joinComparisonCond = left.gt(right);
+                case NOT_EQUALS -> joinComparisonCond = left.ne(right);
+                case GREATER_EQUAL -> joinComparisonCond = left.ge(right);
+                case LESS_EQUAL -> joinComparisonCond = left.le(right);
+                case LESS_THAN -> joinComparisonCond = left.lt(right);
+            }
 
             switch (nested.getJoinType()) {
-                case INNER -> query.join(to).on(left.eq(right));
-                case LEFT -> query.leftJoin(to).on(left.eq(right));
-                case RIGHT -> query.rightJoin(to).on(left.eq(right));
-                case FULL -> query.fullOuterJoin(to).on(left.eq(right));
+                case INNER -> query.join(to).on(joinComparisonCond);
+                case LEFT -> query.leftJoin(to).on(joinComparisonCond);
+                case RIGHT -> query.rightJoin(to).on(joinComparisonCond);
+                case FULL -> query.fullOuterJoin(to).on(joinComparisonCond);
             }
             applyNestedJoins(query, nested);
         }
@@ -150,19 +167,41 @@ public class QueryGenerationImpl {
                 to = DSL.table(DSL.name(join.getToTable().getName())).as(join.getToTable().getAlias());
             }
 
+            JoinCondition joinCond = join.getOnCondition();
+            Field<Object> left = field(name(
+                    joinCond.getLeftColumn().getTable().getAlias(),
+                    joinCond.getLeftColumn().getName()
+            ));
+            Field<Object> right = field(name(
+                    joinCond.getRightColumn().getTable().getAlias(),
+                    joinCond.getRightColumn().getName()
+            ));
 
-            Field<Object> left = field(name(join.getOnCondition().getColumn().getTable().getAlias(), join.getOnCondition().getColumn().getName()));
-            Field<Object> right = field((String) join.getOnCondition().getValue());
+            org.jooq.Condition joinComparisonCond = left.eq(right);
 
-            switch (join.getJoinType()) {
-                case INNER -> selectJoinStep = selectJoinStep.join(to).on(left.eq(right));
-                case LEFT -> selectJoinStep = selectJoinStep.leftJoin(to).on(left.eq(right));
-                case RIGHT -> selectJoinStep = selectJoinStep.rightJoin(to).on(left.eq(right));
-                case FULL -> selectJoinStep = selectJoinStep.fullOuterJoin(to).on(left.eq(right));
+            switch (joinCond.getOperator()) { // ON A.id = > < B.id
+                case EQUALS -> joinComparisonCond = left.eq(right);
+                case GREATER_THAN -> joinComparisonCond = left.gt(right);
+                case NOT_EQUALS -> joinComparisonCond = left.ne(right);
+                case GREATER_EQUAL -> joinComparisonCond = left.ge(right);
+                case LESS_EQUAL -> joinComparisonCond = left.le(right);
+                case LESS_THAN -> joinComparisonCond = left.lt(right);
+                default ->
+                        throw new IllegalStateException("Unexpected join Comparison value: " + joinCond.getOperator());
             }
+
+            switch (join.getJoinType()) { // table A inner / left / right / full JOIN tbl B
+                case INNER -> selectJoinStep = selectJoinStep.join(to).on(joinComparisonCond);
+                case LEFT -> selectJoinStep = selectJoinStep.leftJoin(to).on(joinComparisonCond);
+                case RIGHT -> selectJoinStep = selectJoinStep.rightJoin(to).on(joinComparisonCond);
+                case FULL -> selectJoinStep = selectJoinStep.fullOuterJoin(to).on(joinComparisonCond);
+            }
+
             applyNestedJoins(selectJoinStep, join);
+
         }
 
+        // Where and Having
         org.jooq.Condition where = (whereCondition != null) ? resolveLogicalCondition(whereCondition) : DSL.noCondition();
         org.jooq.Condition having = (havingCondition != null) ? resolveLogicalCondition(havingCondition) : null;
 

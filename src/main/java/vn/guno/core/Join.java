@@ -1,7 +1,6 @@
 package vn.guno.core;
 
 
-
 import vn.guno.global.JoinType;
 import vn.guno.sub.SubquerySource;
 
@@ -12,7 +11,7 @@ public class Join {
     private GTable fromTable;
     private GTable toTable;
     private JoinType joinType;
-    private Condition onCondition;
+    private JoinCondition onCondition;
     private List<Join> nestedJoins = new ArrayList<>();
 
     private SubquerySource toSubquery; // For subquery join
@@ -44,11 +43,20 @@ public class Join {
         this.joinType = joinType;
     }
 
-    public Condition getOnCondition() {
+//    public Condition getOnCondition() {
+//        return onCondition;
+//    }
+//
+//    public void setOnCondition(Condition onCondition) {
+//        this.onCondition = onCondition;
+//    }
+
+
+    public JoinCondition getOnCondition() {
         return onCondition;
     }
 
-    public void setOnCondition(Condition onCondition) {
+    public void setOnCondition(JoinCondition onCondition) {
         this.onCondition = onCondition;
     }
 
