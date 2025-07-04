@@ -61,6 +61,11 @@ public class QueryGenerationImpl {
         throw new IllegalArgumentException("Unsupported condition type: " + cond.getClass());
     }
 
+    // PUBLIC: Default method (backward compatible)
+    public String buildSQL(ReportQuery reportQuery, DSLContext ctx) {
+        return buildSQL(reportQuery, ctx, true); // isTopLevel = true
+    }
+
     private void applyNestedJoins(SelectJoinStep<?> query, Join parentJoin) {
         for (Join nested : parentJoin.getNestedJoins()) {
             Table<?> to = table(name(nested.getToTable().getName())).as(nested.getToTable().getAlias());
@@ -98,7 +103,7 @@ public class QueryGenerationImpl {
         }
     }
 
-    public String buildSQL(ReportQuery reportQuery, DSLContext ctx) {
+    public String buildSQL(ReportQuery reportQuery, DSLContext ctx, boolean isTopLevel) {
         GTable fromTable = reportQuery.getFromTable();
         List<Dimension> dimensions = reportQuery.getDimensions();
         List<Metric> metrics = reportQuery.getMetrics();
@@ -115,7 +120,7 @@ public class QueryGenerationImpl {
 
         if (fromTable.isSubquery()) {
             ReportQuery subReportQuery = fromTable.getSubquery().getQuery();
-            String subquerySQL = new QueryGenerationImpl().buildSQL(subReportQuery, ctx);
+            String subquerySQL = new QueryGenerationImpl().buildSQL(subReportQuery, ctx, false);
             from = DSL.table("(" + subquerySQL + ")").as(fromTable.getSubquery().getAlias());
         } else {
             from = DSL.table(DSL.name(fromTable.getName())).as(fromTable.getAlias());
@@ -161,7 +166,7 @@ public class QueryGenerationImpl {
 
             if (join.getToSubquery() != null) {
                 ReportQuery sub = join.getToSubquery().getQuery();
-                String subquerySQL = buildSQL(sub, ctx);
+                String subquerySQL = buildSQL(sub, ctx, false);
                 to = DSL.table("(" + subquerySQL + ")").as(join.getToSubquery().getAlias());
             } else {
                 to = DSL.table(DSL.name(join.getToTable().getName())).as(join.getToTable().getAlias());
@@ -225,27 +230,50 @@ public class QueryGenerationImpl {
             }
         }
 
-        int limit = 100, offset = 0;
-        if (pagination != null) {
-            limit = pagination.getLimit();
-            offset = pagination.getOffset();
-        }
+//        int limit = 100, offset = 0;
+//        if (pagination != null) {
+//            limit = pagination.getLimit();
+//            offset = pagination.getOffset();
+//        }
 
 
         SelectHavingStep<?> groupStep = query.groupBy(groupFields);
         SelectForUpdateStep<?> queryBuilder;
 
-        if (having != null) {
-            queryBuilder = groupStep
-                    .having(having)
-                    .orderBy(orderFields)
-                    .limit(limit)
-                    .offset(offset);
-        } else {
-            queryBuilder = groupStep
-                    .orderBy(orderFields)
-                    .limit(limit)
-                    .offset(offset);
+
+        if (isTopLevel) { // Top-level query with pagination
+            int limit, offset;
+            if (pagination != null) {
+                limit = pagination.getLimit();
+                offset = pagination.getOffset();
+            } else {
+                limit = 100; // default value
+                offset = 0;
+            }
+
+
+            if (having != null) {
+                queryBuilder = groupStep
+                        .having(having)
+                        .orderBy(orderFields)
+                        .limit(limit)
+                        .offset(offset);
+            } else {
+                queryBuilder = groupStep
+                        .orderBy(orderFields)
+                        .limit(limit)
+                        .offset(offset);
+            }
+
+        } else { // Subquery - NO LIMIT/OFFSET
+            if (having != null) {
+                queryBuilder = groupStep
+                        .having(having)
+                        .orderBy(orderFields);
+            } else {
+                queryBuilder = groupStep
+                        .orderBy(orderFields);
+            }
         }
 
         String sql = queryBuilder.getSQL();
