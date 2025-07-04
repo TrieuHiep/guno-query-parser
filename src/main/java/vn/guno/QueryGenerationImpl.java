@@ -54,6 +54,7 @@ public class QueryGenerationImpl {
                     List<?> range = (List<?>) val;
                     yield field.between(range.get(0), range.get(1));
                 }
+                case GREATER_EQUAL -> field.ge(val);
             };
         } else if (cond instanceof LogicalCondition logic) {
             return resolveLogicalCondition(logic);
