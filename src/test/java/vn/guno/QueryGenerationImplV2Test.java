@@ -7,7 +7,10 @@ import org.jooq.impl.DSL;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import vn.guno.core.BaseCondition;
+import vn.guno.reporting.BaseConditionDeserializer;
+import vn.guno.reporting.QueryGenerationImpl;
+import vn.guno.reporting.ReportQuery;
+import vn.guno.reporting.core.BaseCondition;
 
 public class QueryGenerationImplV2Test {
 

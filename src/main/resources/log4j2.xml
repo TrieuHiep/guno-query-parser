@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+
+    <Properties>
+        <Property name="log-path">logs</Property>
+    </Properties>
+
+    <Appenders>
+        <!-- console appender -->
+        <Console name="console-log" target="SYSTEM_OUT">
+            <PatternLayout
+                    pattern="%d{yyyy-MM-dd HH:mm:ss} %highlight{${LOG_LEVEL_PATTERN:-%5p}}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=green, DEBUG=green bold, TRACE=blue} %style{${sys:PID}}{magenta} [%15.15t] %style{%-40.40C{1.}}{cyan} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
+            <!--<PatternLayout pattern="[%-5level] %d{yyyy-MM-dd HH:mm:ss} [%t] %c{1} - %msg%n"/>-->
+        </Console>
+
+        <Console name="console-commons-log" target="SYSTEM_OUT">
+            <PatternLayout pattern="[COMMONS_LOG] %d{yyyy-MM-dd HH:mm:ss} [%t] %c{1} - %msg%n"/>
+        </Console>
+
+        <Console name="console-cache-log" target="SYSTEM_OUT">
+            <PatternLayout pattern="[CACHE_LOG] %d{yyyy-MM-dd HH:mm:ss} [%t] %c{1} - %msg%n"/>
+        </Console>
+
+        <Console name="console-request-log" target="SYSTEM_OUT">
+            <PatternLayout pattern="[REQUEST_LOG] %d{yyyy-MM-dd HH:mm:ss} [%t] %c{1} - %msg%n"/>
+        </Console>
+
+        <Console name="console-worker-log" target="SYSTEM_OUT">
+            <PatternLayout pattern="[WORKER_LOG] %d{yyyy-MM-dd HH:mm:ss} [%t] %c{1} - %msg%n"/>
+        </Console>
+
+        <Console name="console-db-log" target="SYSTEM_OUT">
+            <PatternLayout pattern="[DB_LOG] %d{yyyy-MM-dd HH:mm:ss} [%t] %c{1} - %msg%n"/>
+        </Console>
+
+        <Console name="console-error-log" target="SYSTEM_OUT">
+            <PatternLayout pattern="[ERROR_LOG] %d{yyyy-MM-dd HH:mm:ss} [%t] %c{1} - %msg%n"/>
+        </Console>
+
+        <!-- file appender -->
+        <RollingFile name="commons-log" fileName="${log-path}/commons.log"
+                     filePattern="${log-path}/commons-%d{yyyy-MM-dd}-%i.log">
+            <!-- log pattern -->
+            <PatternLayout>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5level] [%c{1} %t] - %msg%n</pattern>
+            </PatternLayout>
+
+            <!-- set file size policy -->
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="5 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="1">
+                <Delete basePath="${log-path}" maxDepth="1">
+                    <IfFileName glob="commons-*.log"/>
+                    <IfLastModified age="1d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+        <RollingFile name="cache-log" fileName="${log-path}/cache.log"
+                     filePattern="${log-path}/cache-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5level] [%c{1} %t] - %msg%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="5 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="1">
+                <Delete basePath="${log-path}" maxDepth="1">
+                    <IfFileName glob="cache-*.log"/>
+                    <IfLastModified age="1d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+        <RollingFile name="request-log" fileName="${log-path}/request.log"
+                     filePattern="${log-path}/request-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5level] [%c{1} %t] - %msg%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="50 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="1">
+                <Delete basePath="${log-path}" maxDepth="1">
+                    <IfFileName glob="request-*.log"/>
+                    <IfLastModified age="1d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+        <RollingFile name="worker-log" fileName="${log-path}/worker.log"
+                     filePattern="${log-path}/worker-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5level] [%c{1} %t] - %msg%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="1">
+                <Delete basePath="${log-path}" maxDepth="1">
+                    <IfFileName glob="worker-*.log"/>
+                    <IfLastModified age="1d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+        <RollingFile name="db-log" fileName="${log-path}/db.log"
+                     filePattern="${log-path}/db-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5level] [%c{1} %t] - %msg%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5">
+                <Delete basePath="${log-path}" maxDepth="1">
+                    <IfFileName glob="db-*.log"/>
+                    <IfLastModified age="1d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+        <RollingFile name="error-log" fileName="${log-path}/error.log"
+                     filePattern="${log-path}/error-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5level] [%c{1} %t] - %msg%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="50 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="1">
+                <Delete basePath="${log-path}" maxDepth="1">
+                    <IfFileName glob="error-*.log"/>
+                    <IfLastModified age="1d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+    </Appenders>
+
+    <Loggers>
+
+        <Logger name="CacheLog" level="info"
+                additivity="false">
+            <AppenderRef ref="cache-log" level="info"/>
+            <AppenderRef ref="console-log"/>
+        </Logger>
+
+        <Logger name="RequestLog" level="info"
+                additivity="false">
+            <AppenderRef ref="request-log" level="info"/>
+            <!--<AppenderRef ref="console-request-log"/>-->
+        </Logger>
+
+        <Logger name="WorkerLog" level="info"
+                additivity="false">
+            <AppenderRef ref="worker-log" level="info"/>
+            <!--<AppenderRef ref="console-worker-log"/>-->
+            <!--<AppenderRef ref="console-log"/>-->
+        </Logger>
+
+        <Logger name="DatabaseLog" level="info"
+                additivity="false">
+            <AppenderRef ref="db-log" level="info"/>
+        </Logger>
+
+        <Logger name="ErrorLog" level="info"
+                additivity="false">
+            <AppenderRef ref="error-log" level="info"/>
+            <AppenderRef ref="console-error-log"/>
+        </Logger>
+
+        <Root level="info" additivity="false">
+            <AppenderRef ref="commons-log" level="info"/>
+            <AppenderRef ref="console-log"/>
+        </Root>
+
+    </Loggers>
+
+</Configuration>
