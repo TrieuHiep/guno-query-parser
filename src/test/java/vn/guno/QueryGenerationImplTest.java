@@ -634,6 +634,80 @@ public class QueryGenerationImplTest {
                 """;
     }
 
+    @Test
+    public void deepLevelBinding() {
+        // Just dimensions, no metrics, no joins
+        rawSQL = """
+                {
+                  "fromGTable": {
+                    "alias": "level1",
+                    "subquery": {
+                      "alias": "level1",
+                      "query": {
+                        "fromGTable": {
+                          "alias": "level2",
+                          "subquery": {
+                            "alias": "level2",
+                            "query": {
+                              "fromGTable": {
+                                "name": "orders",
+                                "alias": "o"
+                              },
+                              "whereCondition": {
+                                "operator": "AND",
+                                "conditions": [
+                                  {
+                                    "column": {
+                                      "table": {
+                                        "alias": "o"
+                                      },
+                                      "name": "status"
+                                    },
+                                    "operator": "EQUALS",
+                                    "value": "completed"
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "whereCondition": {
+                          "operator": "AND",
+                          "conditions": [
+                            {
+                              "column": {
+                                "table": {
+                                  "alias": "level2"
+                                },
+                                "name": "amount"
+                              },
+                              "operator": "GREATER_THAN",
+                              "value": 100
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "whereCondition": {
+                    "operator": "AND",
+                    "conditions": [
+                      {
+                        "column": {
+                          "table": {
+                            "alias": "level1"
+                          },
+                          "name": "count"
+                        },
+                        "operator": "GREATER_THAN",
+                        "value": 5
+                      }
+                    ]
+                  }
+                }
+                """;
+
+    }
 
     @Test
     public void complexJoinQuery() {
