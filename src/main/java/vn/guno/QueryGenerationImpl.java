@@ -116,6 +116,7 @@ public class QueryGenerationImpl {
         Pagination pagination = reportQuery.getPagination();
         List<OrderBy> orderBy = reportQuery.getOrderBy();
         List<DerivedMetric> derivedMetrics = reportQuery.getDerivedMetrics();
+        List<Dimension> groupByDimensions = reportQuery.getGroupBy();
 
         TableLike<?> from;
 
@@ -214,12 +215,27 @@ public class QueryGenerationImpl {
         SelectConditionStep<?> query = selectJoinStep.where(where);
 
         List<Field<?>> groupFields = new ArrayList<>();
-        if (!dimensions.isEmpty()) {
-            for (Dimension dim : dimensions) {
+
+        // Only group by what user explicitly specifies
+        if (groupByDimensions != null && !groupByDimensions.isEmpty()) {
+            for (Dimension dim : groupByDimensions) {
+                Column col = dim.getColumn();
+                groupFields.add(field(name(col.getTable().getAlias(), col.getName())));
+            }
+        } else if (!reportQuery.getMetrics().isEmpty() || !reportQuery.getDerivedMetrics().isEmpty()) {
+            // Auto-group by dimensions ONLY when there are metrics
+            for (Dimension dim : reportQuery.getDimensions()) {
                 Column col = dim.getColumn();
                 groupFields.add(field(name(col.getTable().getAlias(), col.getName())));
             }
         }
+
+//        if (!dimensions.isEmpty()) {
+//            for (Dimension dim : dimensions) {
+//                Column col = dim.getColumn();
+//                groupFields.add(field(name(col.getTable().getAlias(), col.getName())));
+//            }
+//        }
 
         List<OrderField<?>> orderFields = new ArrayList<>();
         for (OrderBy ob : orderBy) {
@@ -238,7 +254,17 @@ public class QueryGenerationImpl {
 //        }
 
 
-        SelectHavingStep<?> groupStep = query.groupBy(groupFields);
+//        SelectHavingStep<?> groupStep = query.groupBy(groupFields);
+
+        // ✅ CRITICAL FIX: Only call groupBy() if there are actual fields to group by
+        SelectHavingStep<?> groupStep;
+        if (!groupFields.isEmpty()) {
+            groupStep = query.groupBy(groupFields);
+        } else {
+            // ✅ No GROUP BY when groupFields is empty
+            groupStep = query;  // Cast to continue the chain
+        }
+
         SelectForUpdateStep<?> queryBuilder;
 
 

@@ -17,6 +17,9 @@ public class ReportQuery {
     private List<OrderBy> orderBy = new ArrayList<>();
     private Pagination pagination;
 
+    //  Explicit GROUP BY control
+    private List<Dimension> groupBy = new ArrayList<>();  // User-specified grouping
+
     public GTable getFromTable() {
         return fromGTable;
     }
@@ -105,5 +108,11 @@ public class ReportQuery {
         this.fromGTable = fromGTable;
     }
 
+    public List<Dimension> getGroupBy() {
+        return groupBy;
+    }
 
+    public void setGroupBy(List<Dimension> groupBy) {
+        this.groupBy = groupBy;
+    }
 }

@@ -99,6 +99,6 @@ public class Main {
                 .registerTypeAdapter(BaseCondition.class, new BaseConditionDeserializer())
                 .create();
         ReportQuery query = gson.fromJson(rawJson, ReportQuery.class);
-        new QueryGenerationImpl().buildSQL(query, DSL.using(SQLDialect.MYSQL));
+        new QueryGenerationImpl().buildSQL(query, DSL.using(SQLDialect.POSTGRES));
     }
 }

@@ -14,11 +14,24 @@ public class QueryGenerationImplTest {
     Gson gson;
     private String rawSQL;
 
+
     @Before
     public void setUp() {
         gson = new GsonBuilder()
                 .registerTypeAdapter(BaseCondition.class, new BaseConditionDeserializer())
                 .create();
+    }
+
+    @Test
+    public void testSimpleSelectOnly() {
+        // Just dimensions, no metrics, no joins
+        rawSQL = """
+                {
+                    "fromGTable": {"name": "products", "alias": "p"},
+                    "dimensions": [{"column": {"table": {"alias": "p"}, "name": "name"}}]
+                }
+                """;
+
     }
 
     @Test
@@ -29,7 +42,7 @@ public class QueryGenerationImplTest {
                     "name": "products",
                     "alias": "p"
                   },
-                  "dimensions": [
+                  "groupBy": [
                     {
                       "column": {
                         "table": {
@@ -877,7 +890,7 @@ public class QueryGenerationImplTest {
     @After
     public void tearDown() {
         ReportQuery query = gson.fromJson(rawSQL, ReportQuery.class);
-        new QueryGenerationImpl().buildSQL(query, DSL.using(SQLDialect.MYSQL));
+        new QueryGenerationImpl().buildSQL(query, DSL.using(SQLDialect.POSTGRES));
         System.out.println("--------------------------");
     }
 }
