@@ -64,8 +64,8 @@ public class QueryGenerationImpl {
     }
 
     // PUBLIC: Default method (backward compatible)
-    public String buildSQL(ReportQuery reportQuery, DSLContext ctx) {
-        return buildSQL(reportQuery, ctx, true); // isTopLevel = true
+    public QueryResult buildSQL(ReportQuery reportQuery, DSLContext ctx) {
+        return buildQueryInternal(reportQuery, ctx, true); // isTopLevel = true
     }
 
     private void applyNestedJoins(SelectJoinStep<?> query, Join parentJoin) {
@@ -105,7 +105,7 @@ public class QueryGenerationImpl {
         }
     }
 
-    public String buildSQL(ReportQuery reportQuery, DSLContext ctx, boolean isTopLevel) {
+    public QueryResult buildQueryInternal(ReportQuery reportQuery, DSLContext ctx, boolean isTopLevel) {
         GTable fromTable = reportQuery.getFromTable();
         List<Dimension> dimensions = reportQuery.getDimensions();
         List<Metric> metrics = reportQuery.getMetrics();
@@ -120,11 +120,19 @@ public class QueryGenerationImpl {
         List<Dimension> groupByDimensions = reportQuery.getGroupBy();
 
         TableLike<?> from;
+        List<Object> allBindings = new ArrayList<>();
 
         if (fromTable.isSubquery()) {
             ReportQuery subReportQuery = fromTable.getSubquery().getQuery();
-            String subquerySQL = new QueryGenerationImpl().buildSQL(subReportQuery, ctx, false);
-            from = DSL.table("(" + subquerySQL + ")").as(fromTable.getSubquery().getAlias());
+
+            // ✅ FIX: Get complete result with bindings
+            QueryResult subResult = buildQueryInternal(subReportQuery, ctx, false);
+
+            // ✅ Collect subquery bindings
+            allBindings.addAll(subResult.getBindValues());
+
+//            String subquerySQL = new QueryGenerationImpl().buildQueryInternal(subReportQuery, ctx, false);
+            from = DSL.table("(" + subResult.getSql() + ")").as(fromTable.getSubquery().getAlias());
         } else {
             from = DSL.table(DSL.name(fromTable.getName())).as(fromTable.getAlias());
         }
@@ -169,8 +177,15 @@ public class QueryGenerationImpl {
 
             if (join.getToSubquery() != null) {
                 ReportQuery sub = join.getToSubquery().getQuery();
-                String subquerySQL = buildSQL(sub, ctx, false);
-                to = DSL.table("(" + subquerySQL + ")").as(join.getToSubquery().getAlias());
+
+                // ✅ FIX: Get complete result with bindings
+                QueryResult subResult = buildQueryInternal(sub, ctx, false);
+
+                // ✅ Collect join subquery bindings
+                allBindings.addAll(subResult.getBindValues());
+
+//                String subquerySQL = buildQueryInternal(sub, ctx, false);
+                to = DSL.table("(" + subResult.getSql() + ")").as(join.getToSubquery().getAlias());
             } else {
                 to = DSL.table(DSL.name(join.getToTable().getName())).as(join.getToTable().getAlias());
             }
@@ -306,9 +321,14 @@ public class QueryGenerationImpl {
 
         String sql = queryBuilder.getSQL();
         List<Object> bindValues = queryBuilder.getBindValues();
+        List<Object> mainBindings = queryBuilder.getBindValues();
+
+        // ✅ Combine all bindings in correct order
+        List<Object> finalBindings = new ArrayList<>(allBindings);
+        finalBindings.addAll(mainBindings);
 
         System.out.println(sql);
         System.out.println("binding values: " + bindValues);
-        return sql;
+        return new QueryResult(sql, finalBindings);
     }
 }

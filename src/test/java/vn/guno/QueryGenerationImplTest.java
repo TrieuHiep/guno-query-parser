@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import vn.guno.reporting.BaseConditionDeserializer;
 import vn.guno.reporting.QueryGenerationImpl;
+import vn.guno.reporting.QueryResult;
 import vn.guno.reporting.ReportQuery;
 import vn.guno.reporting.core.BaseCondition;
 
@@ -893,7 +894,8 @@ public class QueryGenerationImplTest {
     @After
     public void tearDown() {
         ReportQuery query = gson.fromJson(rawSQL, ReportQuery.class);
-        new QueryGenerationImpl().buildSQL(query, DSL.using(SQLDialect.POSTGRES));
+        QueryResult queryResult = new QueryGenerationImpl().buildSQL(query, DSL.using(SQLDialect.POSTGRES));
+        System.out.println("final binding: " + queryResult.getBindValues());
         System.out.println("--------------------------");
     }
 }
