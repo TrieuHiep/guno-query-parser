@@ -29,4 +29,12 @@ public class SchemaMetaData {
     public void setTableName(List<String> tableName) {
         this.tableName = tableName;
     }
+
+    @Override
+    public String toString() {
+        return "SchemaMetaData{" +
+                "schemaName='" + schemaName + '\'' +
+                ", tableName=" + tableName +
+                '}';
+    }
 }
