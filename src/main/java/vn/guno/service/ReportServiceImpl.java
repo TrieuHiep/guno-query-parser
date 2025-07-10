@@ -40,12 +40,12 @@ public class ReportServiceImpl implements ReportService {
         String sql = queryResult.getSql();
         List<Object> bindValues = queryResult.getBindValues();
 
-//        List<JSONObject> rs = this.dataDao.queryReport(sql, bindValues);
-//        List<JsonObject> rsObj = rs.stream()
-//                .map(e -> gson.fromJson(e.toString(), JsonObject.class))
-//                .toList();
+        List<JSONObject> rs = this.dataDao.queryReport(sql, bindValues);
+        List<JsonObject> rsObj = rs.stream()
+                .map(e -> gson.fromJson(e.toString(), JsonObject.class))
+                .toList();
 
-        List<JsonObject> rsObj = new ArrayList<>();
+//        List<JsonObject> rsObj = new ArrayList<>();
 
         return new ApiResponse.Builder(1, HttpStatus.OK.value())
                 .buildData(new QueryGeneratorDto(sql, rsObj))

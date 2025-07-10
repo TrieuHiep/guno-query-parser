@@ -1,5 +1,6 @@
 package vn.guno.controller;
 
+import com.ecyrd.speed4j.StopWatch;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,8 @@ public class ReportController extends BaseController {
     ) {
         String response;
         ApiResponse serverResponse;
+        StopWatch sw = new StopWatch();
+        String requestUri = request.getRequestURI() + "?" + getRequestParams(request);
         HttpStatus apiStatus = HttpStatus.OK;
         try {
             serverResponse = this.reportService.generateReport(jsonBody);
@@ -48,6 +51,7 @@ public class ReportController extends BaseController {
                     .build();
             response = gson.toJson(serverResponse, ApiResponse.class);
         }
+        requestLogger.info("finish process request {} in {}", requestUri, sw.stop());
         return new ResponseEntity<>(response, apiStatus);
     }
 

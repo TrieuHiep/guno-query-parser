@@ -1,5 +1,6 @@
 package vn.guno.dao;
 
+import com.ecyrd.speed4j.StopWatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
@@ -15,6 +16,10 @@ import java.util.List;
 public class DataDaoImpl implements DataDao {
 
     protected static final Logger eLogger = LogManager.getLogger("ErrorLog");
+
+    private static final Logger dbLogger = LogManager.getLogger("DatabaseLog");
+
+
     @Autowired
     private DataSource dataSource;
 
@@ -35,6 +40,8 @@ public class DataDaoImpl implements DataDao {
                 statement.setObject(i + 1, bindValues.get(i));
             }
 
+            StopWatch sw = new StopWatch();
+
             ResultSet resultSet = statement.executeQuery();
             ResultSetMetaData metaData = resultSet.getMetaData();
 
@@ -50,7 +57,7 @@ public class DataDaoImpl implements DataDao {
                 }
                 jsonObjects.add(jsonObject);
             }
-
+            dbLogger.info("sql command: {}, processing time: {}", sqlCommand, sw.stop());
         } catch (Exception e) {
             eLogger.error("failed to generate report, reason: {}", e.getMessage());
             e.printStackTrace();
