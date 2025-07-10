@@ -61,6 +61,14 @@ public abstract class BaseController {
         return gson.toJson(failureResponse);
     }
 
+    protected String buildFailureResponse(int code, String message, Object data) {
+        ApiResponse failureResponse = new ApiResponse.Builder(0, code)
+                .buildMessage(message)
+                .buildData(data)
+                .build();
+        return gson.toJson(failureResponse);
+    }
+
     protected long parseNumber(String input) {
         try {
             return Long.parseLong(input);

@@ -39,7 +39,7 @@ public class ReportController extends BaseController {
             response = gson.toJson(serverResponse, ApiResponse.class);
         } catch (ReportGenerationException se) {
             se.printStackTrace();
-            response = buildFailureResponse(se.getCode(), se.getMessage());
+            response = buildFailureResponse(se.getCode(), se.getMessage(), se.getRootCause());
         } catch (Exception e) {
             e.printStackTrace();
             apiStatus = HttpStatus.INTERNAL_SERVER_ERROR;

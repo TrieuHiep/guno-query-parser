@@ -11,10 +11,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import vn.guno.dao.DataDao;
 import vn.guno.dto.ApiResponse;
+import vn.guno.dto.QueryGeneratorDto;
 import vn.guno.reporting.QueryGenerationImpl;
 import vn.guno.reporting.QueryResult;
 import vn.guno.reporting.ReportQuery;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -24,22 +26,29 @@ public class ReportServiceImpl implements ReportService {
     private DataDao dataDao;
 
     @Autowired
+    private ReportQueryValidator queryValidator;
+
+    @Autowired
     @Qualifier("gsonCustomDeserializer")
     private Gson gson;
 
     @Override
     public ApiResponse generateReport(String jsonBody) throws Exception {
-        ReportQuery query = gson.fromJson(jsonBody, ReportQuery.class);
+        ReportQuery query = queryValidator.parseQuery(jsonBody);
+
         QueryResult queryResult = new QueryGenerationImpl().buildSQL(query, DSL.using(SQLDialect.POSTGRES));
         String sql = queryResult.getSql();
         List<Object> bindValues = queryResult.getBindValues();
-        List<JSONObject> rs = this.dataDao.queryReport(sql, bindValues);
-        List<JsonObject> rsObj = rs.stream()
-                .map(e -> gson.fromJson(e.toString(), JsonObject.class))
-                .toList();
+
+//        List<JSONObject> rs = this.dataDao.queryReport(sql, bindValues);
+//        List<JsonObject> rsObj = rs.stream()
+//                .map(e -> gson.fromJson(e.toString(), JsonObject.class))
+//                .toList();
+
+        List<JsonObject> rsObj = new ArrayList<>();
 
         return new ApiResponse.Builder(1, HttpStatus.OK.value())
-                .buildData(rsObj)
+                .buildData(new QueryGeneratorDto(sql, rsObj))
                 .build();
     }
 
