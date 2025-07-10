@@ -1,0 +1,70 @@
+{
+  "fromGTable": {
+    "name": "sales",
+    "alias": "s"
+  },
+  "dimensions": [
+    {
+      "column": {
+        "table": {
+          "alias": "s"
+        },
+        "name": "region"
+      }
+    },
+    {
+      "column": {
+        "table": {
+          "alias": "s"
+        },
+        "name": "quarter"
+      }
+    },
+    {
+      "column": {
+        "table": {
+          "alias": "s"
+        },
+        "name": "product_name"
+      }
+    },
+    {
+      "column": {
+        "table": {
+          "alias": "s"
+        },
+        "name": "sales_rep"
+      }
+    }
+  ],
+  "metrics": [
+    {
+      "type": "SUM",
+      "alias": "total_sales",
+      "column": {
+        "table": {
+          "alias": "s"
+        },
+        "name": "sales_amount"
+      }
+    }
+  ],
+  "groupBy": [
+    {
+      "column": {
+        "table": {
+          "alias": "s"
+        },
+        "name": "region"
+      }
+    },
+    {
+      "column": {
+        "table": {
+          "alias": "s"
+        },
+        "name": "quarter"
+      }
+    }
+  ]
+}

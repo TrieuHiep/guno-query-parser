@@ -15,6 +15,8 @@ import vn.guno.dto.ApiResponse;
 import vn.guno.exception.ReportGenerationException;
 import vn.guno.service.ReportService;
 
+import static vn.guno.global.ErrorCode.INVALID_INPUT;
+
 /**
  * @author tatsuya
  * @created 05/06/2024
@@ -43,7 +45,12 @@ public class ReportController extends BaseController {
         } catch (ReportGenerationException se) {
             se.printStackTrace();
             response = buildFailureResponse(se.getCode(), se.getMessage(), se.getRootCause());
-        } catch (Exception e) {
+        }
+        catch (IllegalArgumentException se) {
+            se.printStackTrace();
+            response = buildFailureResponse(INVALID_INPUT, se.getMessage());
+        }
+        catch (Exception e) {
             e.printStackTrace();
             apiStatus = HttpStatus.INTERNAL_SERVER_ERROR;
             serverResponse = new ApiResponse.Builder(0, apiStatus.value())

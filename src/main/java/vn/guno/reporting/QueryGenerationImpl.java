@@ -9,6 +9,8 @@ import vn.guno.reporting.global.SortDirection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.*;
 
@@ -246,6 +248,7 @@ public class QueryGenerationImpl {
             }
         }
 
+        validateGroupByConsistency(reportQuery, groupFields);
 //        if (!dimensions.isEmpty()) {
 //            for (Dimension dim : dimensions) {
 //                Column col = dim.getColumn();
@@ -330,4 +333,61 @@ public class QueryGenerationImpl {
         System.out.println("binding values: " + mainBindings);
         return new QueryResult(sql, finalBindings);
     }
+
+
+    /**
+     * Validates that all selected dimensions appear in GROUP BY clause when aggregates are present
+     * Throws IllegalArgumentException if validation fails
+     */
+    private void validateGroupByConsistency(ReportQuery reportQuery, List<Field<?>> groupFields) {
+        boolean hasAggregates = !reportQuery.getMetrics().isEmpty() ||
+                !reportQuery.getDerivedMetrics().isEmpty();
+
+        // No validation needed if no aggregates
+        if (!hasAggregates || groupFields.isEmpty()) {
+            return;
+        }
+
+        // Create set of grouped column references for fast lookup
+        Set<String> groupedColumns = groupFields.stream()
+                .map(this::normalizeFieldReference)
+                .collect(Collectors.toSet());
+
+        // Validate each selected dimension
+        List<String> invalidColumns = new ArrayList<>();
+        for (Dimension dim : reportQuery.getDimensions()) {
+            String dimReference = normalizeColumnReference(dim.getColumn());
+
+            if (!groupedColumns.contains(dimReference)) {
+                invalidColumns.add(dim.getColumn().getTable().getAlias() + "." + dim.getColumn().getName());
+            }
+        }
+
+        // Throw exception if invalid columns found
+        if (!invalidColumns.isEmpty()) {
+            throw new IllegalArgumentException(
+                    String.format("Columns %s must appear in GROUP BY clause when aggregates are present. " +
+                                    "Either add them to groupBy or remove from dimensions.",
+                            invalidColumns)
+            );
+        }
+    }
+
+    /**
+     * Normalizes JOOQ Field reference to table.column format for comparison
+     */
+    private String normalizeFieldReference(Field<?> field) {
+        // Remove quotes and extract table.column from JOOQ field
+        String fieldStr = field.toString();
+        // JOOQ format: "table"."column" -> table.column
+        return fieldStr.replace("\"", "");
+    }
+
+    /**
+     * Normalizes Column object to table.column format for comparison
+     */
+    private String normalizeColumnReference(Column column) {
+        return column.getTable().getAlias() + "." + column.getName();
+    }
+
 }

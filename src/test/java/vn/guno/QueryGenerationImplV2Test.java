@@ -41,6 +41,13 @@ public class QueryGenerationImplV2Test {
         Assert.assertTrue(SQLComparatorUtils.sqlEquals(queryResult.getSql(), expectedSQL));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testInvalidPartialGroupBy() {
+        rawJson = TestDataLoader.loadTextFromTestCases("input/InvalidPartialGroupBy.json");
+        ReportQuery query = gson.fromJson(rawJson, ReportQuery.class);
+        new QueryGenerationImpl().buildSQL(query, DSL.using(SQLDialect.POSTGRES));
+    }
+
     @Test(expected = NullPointerException.class)
     public void testNullReportQuery() {
         new QueryGenerationImpl().buildSQL(null, DSL.using(SQLDialect.POSTGRES));
@@ -68,4 +75,6 @@ public class QueryGenerationImplV2Test {
 //        System.out.println("final binding: " + queryResult.getBindValues());
 //        System.out.println("--------------------------");
     }
+
+
 }
