@@ -1,0 +1,53 @@
+{
+  "fromGTable": {
+    "name": "orders",
+    "alias": "o"
+  },
+  "dimensions": [
+    {
+      "column": {
+        "table": {
+          "alias": "o"
+        },
+        "name": "status"
+      }
+    }
+  ],
+  "metrics": [
+    {
+      "type": "SUM",
+      "alias": "sum_amount",
+      "column": {
+        "table": {
+          "alias": "o"
+        },
+        "name": "amount"
+      }
+    }
+  ],
+  "havingCondition": {
+    "operator": "OR",
+    "conditions": [
+      {
+        "column": {
+          "table": {
+            "alias": "o"
+          },
+          "name": "status"
+        },
+        "operator": "EQUALS",
+        "value": "paid"
+      },
+      {
+        "column": {
+          "table": {
+            "alias": "o"
+          },
+          "name": "status"
+        },
+        "operator": "EQUALS",
+        "value": "shipped"
+      }
+    ]
+  }
+}

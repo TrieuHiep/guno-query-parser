@@ -1,0 +1,54 @@
+{
+  "fromGTable": {
+    "name": "orders",
+    "alias": "o"
+  },
+  "joins": [
+    {
+      "joinType": "INNER",
+      "toTable": {
+        "name": "customers",
+        "alias": "c"
+      },
+      "onCondition": {
+        "leftColumn": {
+          "table": {
+            "name": "orders",
+            "alias": "o"
+          },
+          "name": "customer_id"
+        },
+        "rightColumn": {
+          "table": {
+            "name": "customers",
+            "alias": "c"
+          },
+          "name": "id"
+        },
+        "operator": "EQUALS"
+      }
+    }
+  ],
+  "dimensions": [
+    {
+      "column": {
+        "table": {
+          "alias": "c"
+        },
+        "name": "country"
+      }
+    }
+  ],
+  "metrics": [
+    {
+      "type": "SUM",
+      "alias": "revenue",
+      "column": {
+        "table": {
+          "alias": "o"
+        },
+        "name": "amount"
+      }
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "fromGTable": {
+    "name": "sessions",
+    "alias": "s"
+  },
+  "dimensions": [
+    {
+      "column": {
+        "table": {
+          "alias": "s"
+        },
+        "name": "channel"
+      }
+    }
+  ],
+  "derivedMetrics": [
+    {
+      "alias": "conversion_rate",
+      "expression": "SUM(s.orders) / SUM(s.visits)"
+    }
+  ]
+}

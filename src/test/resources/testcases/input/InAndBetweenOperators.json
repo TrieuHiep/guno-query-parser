@@ -1,0 +1,50 @@
+{
+  "fromGTable": {
+    "name": "orders",
+    "alias": "o"
+  },
+  "metrics": [
+    {
+      "type": "COUNT",
+      "alias": "count",
+      "column": {
+        "table": {
+          "alias": "o"
+        },
+        "name": "id"
+      }
+    }
+  ],
+  "whereCondition": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "column": {
+          "table": {
+            "alias": "o"
+          },
+          "name": "status"
+        },
+        "operator": "IN",
+        "value": [
+          "pending",
+          "processing",
+          "completed"
+        ]
+      },
+      {
+        "column": {
+          "table": {
+            "alias": "o"
+          },
+          "name": "amount"
+        },
+        "operator": "BETWEEN",
+        "value": [
+          100,
+          500
+        ]
+      }
+    ]
+  }
+}

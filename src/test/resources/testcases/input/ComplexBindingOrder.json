@@ -1,0 +1,100 @@
+{
+  "fromGTable": {
+    "alias": "sub1",
+    "subquery": {
+      "alias": "sub1",
+      "query": {
+        "fromGTable": {
+          "name": "orders",
+          "alias": "o"
+        },
+        "whereCondition": {
+          "operator": "AND",
+          "conditions": [
+            {
+              "column": {
+                "table": {
+                  "alias": "o"
+                },
+                "name": "status"
+              },
+              "operator": "EQUALS",
+              "value": "FIRST"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "joins": [
+    {
+      "joinType": "INNER",
+      "toSubquery": {
+        "alias": "sub2",
+        "query": {
+          "fromGTable": {
+            "name": "customers",
+            "alias": "c"
+          },
+          "whereCondition": {
+            "operator": "AND",
+            "conditions": [
+              {
+                "column": {
+                  "table": {
+                    "alias": "c"
+                  },
+                  "name": "country"
+                },
+                "operator": "EQUALS",
+                "value": "SECOND"
+              }
+            ]
+          }
+        }
+      },
+      "onCondition": {
+        "leftColumn": {
+          "table": {
+            "alias": "sub1"
+          },
+          "name": "customer_id"
+        },
+        "rightColumn": {
+          "table": {
+            "alias": "sub2"
+          },
+          "name": "id"
+        },
+        "operator": "EQUALS"
+      }
+    }
+  ],
+  "metrics": [
+    {
+      "type": "COUNT",
+      "alias": "count",
+      "column": {
+        "table": {
+          "alias": "sub1"
+        },
+        "name": "id"
+      }
+    }
+  ],
+  "whereCondition": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "column": {
+          "table": {
+            "alias": "sub1"
+          },
+          "name": "amount"
+        },
+        "operator": "GREATER_THAN",
+        "value": "THIRD"
+      }
+    ]
+  }
+}

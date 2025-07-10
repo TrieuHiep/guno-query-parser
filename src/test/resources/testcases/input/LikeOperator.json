@@ -1,0 +1,31 @@
+{
+  "fromGTable": {
+    "name": "customers",
+    "alias": "c"
+  },
+  "dimensions": [
+    {
+      "column": {
+        "table": {
+          "alias": "c"
+        },
+        "name": "name"
+      }
+    }
+  ],
+  "whereCondition": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "column": {
+          "table": {
+            "alias": "c"
+          },
+          "name": "email"
+        },
+        "operator": "LIKE",
+        "value": "%@gmail.com"
+      }
+    ]
+  }
+}

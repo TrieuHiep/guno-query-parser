@@ -125,10 +125,10 @@ public class QueryGenerationImpl {
         if (fromTable.isSubquery()) {
             ReportQuery subReportQuery = fromTable.getSubquery().getQuery();
 
-            // ✅ FIX: Get complete result with bindings
+            //  FIX: Get complete result with bindings
             QueryResult subResult = buildQueryInternal(subReportQuery, ctx, false);
 
-            // ✅ Collect subquery bindings
+            //  Collect subquery bindings
             allBindings.addAll(subResult.getBindValues());
 
 //            String subquerySQL = new QueryGenerationImpl().buildQueryInternal(subReportQuery, ctx, false);
@@ -178,10 +178,10 @@ public class QueryGenerationImpl {
             if (join.getToSubquery() != null) {
                 ReportQuery sub = join.getToSubquery().getQuery();
 
-                // ✅ FIX: Get complete result with bindings
+                //  FIX: Get complete result with bindings
                 QueryResult subResult = buildQueryInternal(sub, ctx, false);
 
-                // ✅ Collect join subquery bindings
+                //  Collect join subquery bindings
                 allBindings.addAll(subResult.getBindValues());
 
 //                String subquerySQL = buildQueryInternal(sub, ctx, false);
@@ -272,12 +272,12 @@ public class QueryGenerationImpl {
 
 //        SelectHavingStep<?> groupStep = query.groupBy(groupFields);
 
-        // ✅ CRITICAL FIX: Only call groupBy() if there are actual fields to group by
+        //  CRITICAL FIX: Only call groupBy() if there are actual fields to group by
         SelectHavingStep<?> groupStep;
         if (!groupFields.isEmpty()) {
             groupStep = query.groupBy(groupFields);
         } else {
-            // ✅ No GROUP BY when groupFields is empty
+            //  No GROUP BY when groupFields is empty
             groupStep = query;  // Cast to continue the chain
         }
 
@@ -323,7 +323,7 @@ public class QueryGenerationImpl {
         List<Object> bindValues = queryBuilder.getBindValues();
         List<Object> mainBindings = queryBuilder.getBindValues();
 
-        // ✅ Combine all bindings in correct order
+        // Combine all bindings in correct order
         List<Object> finalBindings = new ArrayList<>(allBindings);
         finalBindings.addAll(mainBindings);
 

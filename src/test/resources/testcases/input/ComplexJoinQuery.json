@@ -1,0 +1,250 @@
+{
+  "fromGTable": {
+    "name": "orders",
+    "alias": "o"
+  },
+  "dimensions": [
+    {
+      "column": {
+        "table": {
+          "alias": "o"
+        },
+        "name": "order_number"
+      }
+    },
+    {
+      "column": {
+        "table": {
+          "alias": "c"
+        },
+        "name": "customer_name"
+      }
+    },
+    {
+      "column": {
+        "table": {
+          "alias": "a"
+        },
+        "name": "street_address"
+      }
+    },
+    {
+      "column": {
+        "table": {
+          "alias": "co"
+        },
+        "name": "country_name"
+      }
+    },
+    {
+      "column": {
+        "table": {
+          "alias": "p"
+        },
+        "name": "product_name"
+      }
+    }
+  ],
+  "joins": [
+    {
+      "joinType": "INNER",
+      "toTable": {
+        "name": "customers",
+        "alias": "c"
+      },
+      "onCondition": {
+        "leftColumn": {
+          "table": {
+            "alias": "o"
+          },
+          "name": "customer_id"
+        },
+        "rightColumn": {
+          "table": {
+            "alias": "c"
+          },
+          "name": "id"
+        },
+        "operator": "EQUALS"
+      },
+      "nestedJoins": [
+        {
+          "joinType": "LEFT",
+          "toTable": {
+            "name": "addresses",
+            "alias": "a"
+          },
+          "onCondition": {
+            "leftColumn": {
+              "table": {
+                "alias": "c"
+              },
+              "name": "shipping_address_id"
+            },
+            "rightColumn": {
+              "table": {
+                "alias": "a"
+              },
+              "name": "id"
+            },
+            "operator": "EQUALS"
+          },
+          "nestedJoins": [
+            {
+              "joinType": "INNER",
+              "toTable": {
+                "name": "countries",
+                "alias": "co"
+              },
+              "onCondition": {
+                "leftColumn": {
+                  "table": {
+                    "alias": "a"
+                  },
+                  "name": "country_id"
+                },
+                "rightColumn": {
+                  "table": {
+                    "alias": "co"
+                  },
+                  "name": "id"
+                },
+                "operator": "EQUALS"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "joinType": "INNER",
+      "toTable": {
+        "name": "order_items",
+        "alias": "oi"
+      },
+      "onCondition": {
+        "leftColumn": {
+          "table": {
+            "alias": "o"
+          },
+          "name": "id"
+        },
+        "rightColumn": {
+          "table": {
+            "alias": "oi"
+          },
+          "name": "order_id"
+        },
+        "operator": "EQUALS"
+      },
+      "nestedJoins": [
+        {
+          "joinType": "INNER",
+          "toTable": {
+            "name": "products",
+            "alias": "p"
+          },
+          "onCondition": {
+            "leftColumn": {
+              "table": {
+                "alias": "oi"
+              },
+              "name": "product_id"
+            },
+            "rightColumn": {
+              "table": {
+                "alias": "p"
+              },
+              "name": "id"
+            },
+            "operator": "EQUALS"
+          }
+        }
+      ]
+    }
+  ],
+  "whereCondition": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "column": {
+          "table": {
+            "alias": "o"
+          },
+          "name": "status"
+        },
+        "operator": "EQUALS",
+        "value": "completed"
+      },
+      {
+        "column": {
+          "table": {
+            "alias": "o"
+          },
+          "name": "order_date"
+        },
+        "operator": "GREATER_THAN",
+        "value": "2024-01-01"
+      },
+      {
+        "operator": "OR",
+        "conditions": [
+          {
+            "column": {
+              "table": {
+                "alias": "co"
+              },
+              "name": "country_name"
+            },
+            "operator": "EQUALS",
+            "value": "USA"
+          },
+          {
+            "column": {
+              "table": {
+                "alias": "co"
+              },
+              "name": "country_name"
+            },
+            "operator": "EQUALS",
+            "value": "Canada"
+          }
+        ]
+      },
+      {
+        "column": {
+          "table": {
+            "alias": "p"
+          },
+          "name": "price"
+        },
+        "operator": "GREATER_THAN",
+        "value": 50.00
+      }
+    ]
+  },
+  "orderBy": [
+    {
+      "column": {
+        "table": {
+          "alias": "o"
+        },
+        "name": "order_date"
+      },
+      "direction": "DESC"
+    },
+    {
+      "column": {
+        "table": {
+          "alias": "c"
+        },
+        "name": "customer_name"
+      },
+      "direction": "ASC"
+    }
+  ],
+  "pagination": {
+    "limit": 100,
+    "offset": 0
+  }
+}

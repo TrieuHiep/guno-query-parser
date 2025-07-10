@@ -1,0 +1,80 @@
+{
+  "fromGTable": {
+    "name": "orders",
+    "alias": "o"
+  },
+  "joins": [
+    {
+      "joinType": "INNER",
+      "toSubquery": {
+        "alias": "sub_cust",
+        "query": {
+          "fromGTable": {
+            "name": "customers",
+            "alias": "c"
+          },
+          "dimensions": [
+            {
+              "column": {
+                "table": {
+                  "alias": "c"
+                },
+                "name": "id"
+              }
+            }
+          ],
+          "metrics": [
+            {
+              "type": "COUNT",
+              "alias": "order_count",
+              "column": {
+                "table": {
+                  "alias": "c"
+                },
+                "name": "id"
+              }
+            }
+          ],
+          "groupBy": [
+            {
+              "column": {
+                "table": {
+                  "alias": "c"
+                },
+                "name": "id"
+              }
+            }
+          ]
+        }
+      },
+      "onCondition": {
+        "leftColumn": {
+          "table": {
+            "name": "orders",
+            "alias": "o"
+          },
+          "name": "customer_id"
+        },
+        "rightColumn": {
+          "table": {
+            "alias": "sub_cust"
+          },
+          "name": "id"
+        },
+        "operator": "EQUALS"
+      }
+    }
+  ],
+  "metrics": [
+    {
+      "type": "SUM",
+      "alias": "total_amount",
+      "column": {
+        "table": {
+          "alias": "o"
+        },
+        "name": "amount"
+      }
+    }
+  ]
+}

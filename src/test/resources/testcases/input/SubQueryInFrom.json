@@ -1,0 +1,70 @@
+{
+  "fromGTable": {
+    "alias": "sub_orders",
+    "subquery": {
+      "alias": "sub_orders",
+      "query": {
+        "fromGTable": {
+          "name": "orders",
+          "alias": "o"
+        },
+        "dimensions": [
+          {
+            "column": {
+              "table": {
+                "alias": "o"
+              },
+              "name": "region_id"
+            }
+          }
+        ],
+        "metrics": [
+          {
+            "type": "SUM",
+            "alias": "total_price",
+            "column": {
+              "table": {
+                "alias": "o"
+              },
+              "name": "price"
+            }
+          }
+        ],
+        "whereConditions": [
+          {
+            "column": {
+              "table": {
+                "alias": "o"
+              },
+              "name": "status"
+            },
+            "operator": "EQUALS",
+            "value": "completed"
+          }
+        ]
+      }
+    }
+  },
+  "dimensions": [
+    {
+      "column": {
+        "table": {
+          "alias": "sub_orders"
+        },
+        "name": "region_id"
+      }
+    }
+  ],
+  "metrics": [
+    {
+      "type": "SUM",
+      "alias": "sum_price",
+      "column": {
+        "table": {
+          "alias": "sub_orders"
+        },
+        "name": "total_price"
+      }
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "fromGTable": {
+    "name": "orders",
+    "alias": "o"
+  },
+  "metrics": [
+    {
+      "type": "COUNT",
+      "alias": "count",
+      "column": {
+        "table": {
+          "alias": "o"
+        },
+        "name": "id"
+      }
+    }
+  ],
+  "whereCondition": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "column": {
+          "table": {
+            "alias": "o"
+          },
+          "name": "country"
+        },
+        "operator": "EQUALS",
+        "value": "US"
+      },
+      {
+        "operator": "OR",
+        "conditions": [
+          {
+            "column": {
+              "table": {
+                "alias": "o"
+              },
+              "name": "status"
+            },
+            "operator": "EQUALS",
+            "value": "PENDING"
+          },
+          {
+            "column": {
+              "table": {
+                "alias": "o"
+              },
+              "name": "total"
+            },
+            "operator": "GREATER_THAN",
+            "value": 100
+          }
+        ]
+      },
+      {
+        "operator": "NOT",
+        "conditions": [
+          {
+            "column": {
+              "table": {
+                "alias": "o"
+              },
+              "name": "payment_method"
+            },
+            "operator": "EQUALS",
+            "value": "CASH"
+          }
+        ]
+      }
+    ]
+  }
+}

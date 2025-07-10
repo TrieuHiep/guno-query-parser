@@ -1,0 +1,28 @@
+{
+  "fromGTable": {
+    "name": "products",
+    "alias": "p"
+  },
+  "groupBy": [
+    {
+      "column": {
+        "table": {
+          "alias": "p"
+        },
+        "name": "product_name"
+      }
+    }
+  ],
+  "metrics": [
+    {
+      "type": "COUNT",
+      "alias": "product_count",
+      "column": {
+        "table": {
+          "alias": "p"
+        },
+        "name": "id"
+      }
+    }
+  ]
+}

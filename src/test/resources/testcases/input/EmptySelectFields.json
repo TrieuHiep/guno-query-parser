@@ -1,0 +1,6 @@
+{
+  "fromGTable": {
+    "name": "orders",
+    "alias": "o"
+  }
+}

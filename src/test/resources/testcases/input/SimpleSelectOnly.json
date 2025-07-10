@@ -1,0 +1,16 @@
+{
+  "fromGTable": {
+    "name": "products",
+    "alias": "p"
+  },
+  "dimensions": [
+    {
+      "column": {
+        "table": {
+          "alias": "p"
+        },
+        "name": "name"
+      }
+    }
+  ]
+}

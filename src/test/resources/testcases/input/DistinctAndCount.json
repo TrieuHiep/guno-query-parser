@@ -1,0 +1,29 @@
+{
+  "fromGTable": {
+    "name": "users",
+    "alias": "u"
+  },
+  "distinct": true,
+  "dimensions": [
+    {
+      "column": {
+        "table": {
+          "alias": "u"
+        },
+        "name": "country"
+      }
+    }
+  ],
+  "metrics": [
+    {
+      "type": "COUNT_DISTINCT",
+      "alias": "unique_emails",
+      "column": {
+        "table": {
+          "alias": "u"
+        },
+        "name": "email"
+      }
+    }
+  ]
+}
