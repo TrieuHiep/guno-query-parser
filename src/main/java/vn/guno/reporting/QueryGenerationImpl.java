@@ -320,7 +320,6 @@ public class QueryGenerationImpl {
         }
 
         String sql = queryBuilder.getSQL();
-        List<Object> bindValues = queryBuilder.getBindValues();
         List<Object> mainBindings = queryBuilder.getBindValues();
 
         // Combine all bindings in correct order
@@ -328,7 +327,7 @@ public class QueryGenerationImpl {
         finalBindings.addAll(mainBindings);
 
         System.out.println(sql);
-        System.out.println("binding values: " + bindValues);
+        System.out.println("binding values: " + mainBindings);
         return new QueryResult(sql, finalBindings);
     }
 }
