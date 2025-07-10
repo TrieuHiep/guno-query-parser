@@ -2,6 +2,7 @@ package vn.guno;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import net.sf.jsqlparser.JSQLParserException;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
@@ -38,6 +39,26 @@ public class QueryGenerationImplV2Test {
         ReportQuery query = gson.fromJson(rawJson, ReportQuery.class);
         QueryResult queryResult = new QueryGenerationImpl().buildSQL(query, DSL.using(SQLDialect.POSTGRES));
         Assert.assertTrue(SQLComparatorUtils.sqlEquals(queryResult.getSql(), expectedSQL));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testNullReportQuery() {
+        new QueryGenerationImpl().buildSQL(null, DSL.using(SQLDialect.POSTGRES));
+    }
+
+    @Test(expected = JsonParseException.class)
+    public void testInvalidJsonStructure() {
+        String invalidJson = """
+                {
+                  "fromGTable": {"name": "orders"},
+                  "whereCondition": {
+                    "invalidField": "value"  // Invalid structure
+                  }
+                }
+                """;
+
+        ReportQuery query = gson.fromJson(invalidJson, ReportQuery.class);
+        new QueryGenerationImpl().buildSQL(query, DSL.using(SQLDialect.POSTGRES));
     }
 
     @After

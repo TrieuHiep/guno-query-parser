@@ -30,18 +30,21 @@
             }
           }
         ],
-        "whereConditions": [
-          {
-            "column": {
-              "table": {
-                "alias": "o"
+        "whereConditions": {
+          "operator": "AND",
+          "conditions": [
+            {
+              "column": {
+                "table": {
+                  "alias": "o"
+                },
+                "name": "status"
               },
-              "name": "status"
-            },
-            "operator": "EQUALS",
-            "value": "completed"
-          }
-        ]
+              "operator": "EQUALS",
+              "value": "completed"
+            }
+          ]
+        }
       }
     }
   },

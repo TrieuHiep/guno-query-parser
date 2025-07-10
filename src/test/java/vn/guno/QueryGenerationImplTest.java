@@ -20,6 +20,11 @@ import vn.guno.reporting.core.BaseCondition;
 import vn.guno.utils.SQLComparatorUtils;
 import vn.guno.utils.TestDataLoader;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class QueryGenerationImplTest {
 
     Gson gson;
@@ -181,6 +186,17 @@ public class QueryGenerationImplTest {
         ReportQuery query = gson.fromJson(rawJson, ReportQuery.class);
         QueryResult queryResult = new QueryGenerationImpl().buildSQL(query, DSL.using(SQLDialect.POSTGRES));
         Assert.assertTrue(SQLComparatorUtils.sqlEquals(queryResult.getSql(), expectedSQL));
+
+        // binding verification
+        List<Object> expectedBindings = new ArrayList<>(Arrays.asList("FIRST", "SECOND", "THIRD", 0, 100));
+        String expectedJoin = expectedBindings.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(", "));
+
+        String actualJoin = queryResult.getBindValues().stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(", "));
+        Assert.assertEquals(expectedJoin, actualJoin);
     }
 
     @After
